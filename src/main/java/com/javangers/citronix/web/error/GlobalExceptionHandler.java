@@ -142,16 +142,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
-            AccessDeniedException ex, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                "ACCESS_DENIED",
-                "Access denied",
-                Collections.emptyList(),
-                LocalDateTime.now(),
-                ((ServletWebRequest) request).getRequest().getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
-    }
 }
