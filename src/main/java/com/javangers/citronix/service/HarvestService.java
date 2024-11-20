@@ -1,0 +1,14 @@
+package com.javangers.citronix.service;
+
+
+import com.javangers.citronix.domain.Field;
+import com.javangers.citronix.domain.Harvest;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+public interface HarvestService {
+    Harvest createHarvest(LocalDate harvetsDate, UUID fields);
+
+}
