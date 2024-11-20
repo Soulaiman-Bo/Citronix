@@ -21,7 +21,7 @@ public class HarvestRequestVM {
     private LocalDate harvestDate;
 
     @NotNull(message = "Fields is required")
-    private List<UUID> fields;
+    private UUID field;
 
 }
 
