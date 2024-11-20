@@ -2,6 +2,10 @@ package com.javangers.citronix.domain;
 
 import com.javangers.citronix.domain.enumeration.Season;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,6 +13,10 @@ import java.util.UUID;
 
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "harvests")
 public class Harvest {
     @Id
@@ -17,15 +25,13 @@ public class Harvest {
 
     private LocalDate harvestDate;
 
-    @Enumerated(EnumType.STRING)
-    private Season season;
-
-    private Integer year;
+//    @Enumerated(EnumType.STRING)
+//    private Season season;
 
     private Double totalQuantity;
 
-    @ManyToOne
-    private Farm farm;
+//    @ManyToOne
+//    private Farm farm;
 
     @OneToMany(mappedBy = "harvest")
     private List<HarvestDetail> harvestDetails;
