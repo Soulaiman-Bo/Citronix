@@ -2,6 +2,7 @@ package com.javangers.citronix.web.vm.request;
 
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,10 +18,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class HarvestRequestVM {
 
-    @NotNull(message = "Harvest Date is required")
+    @NotNull(message = "Harvest date cannot be null")
+    @PastOrPresent(message = "Harvest date must be in the past or present")
     private LocalDate harvestDate;
 
-    @NotNull(message = "Item (Field/Farm) is required")
+    @NotNull(message = "Entity ID is required")
     private UUID item;
 
 }
