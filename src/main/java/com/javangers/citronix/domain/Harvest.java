@@ -25,13 +25,10 @@ public class Harvest {
 
     private LocalDate harvestDate;
 
-//    @Enumerated(EnumType.STRING)
-//    private Season season;
+    @Enumerated(EnumType.STRING)
+    private Season season;
 
     private Double totalQuantity;
-
-//    @ManyToOne
-//    private Farm farm;
 
     @OneToMany(mappedBy = "harvest")
     private List<HarvestDetail> harvestDetails;

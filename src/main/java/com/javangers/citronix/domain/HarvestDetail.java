@@ -31,5 +31,4 @@ public class HarvestDetail {
     @ManyToOne
     private Tree tree;
 
-
 }
