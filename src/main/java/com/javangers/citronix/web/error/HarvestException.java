@@ -1,5 +1,7 @@
 package com.javangers.citronix.web.error;
 
+import java.util.UUID;
+
 public class HarvestException {
     public static class DuplicateSeasonHarvestException extends BusinessRuleViolationException {
         public DuplicateSeasonHarvestException(String season) {
@@ -8,7 +10,7 @@ public class HarvestException {
     }
 
     public static class TreeAlreadyHarvestedException extends BusinessRuleViolationException {
-        public TreeAlreadyHarvestedException(Long treeId) {
+        public TreeAlreadyHarvestedException(UUID treeId) {
             super(String.format("Tree %d already harvested this season", treeId), "TREE_ALREADY_HARVESTED");
         }
     }
