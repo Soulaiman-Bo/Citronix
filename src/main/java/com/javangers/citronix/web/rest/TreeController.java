@@ -6,6 +6,7 @@ import com.javangers.citronix.web.vm.mapper.TreeMapper;
 import com.javangers.citronix.web.vm.request.TreeRequestVM;
 import com.javangers.citronix.web.vm.response.TreeResponseVM;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,14 +29,16 @@ public class TreeController {
         this.treeMapper = treeMapper;
     }
 
+
     @PostMapping("trees")
-    public ResponseEntity<TreeResponseVM> plantTree(
+    public ResponseEntity<List<TreeResponseVM>> plantTree(
             @Valid @RequestBody TreeRequestVM requestVM) {
         Tree tree = treeMapper.toEntity(requestVM);
-        Tree savedTree = treeService.plantTree(tree);
+        List<Tree> savedTree = treeService.plantTree(requestVM.getPlantingDate(), requestVM.getFieldId(), requestVM.getQuantity());
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(treeMapper.toResponseVM(savedTree));
+                .body(treeMapper.toResponseVMList(savedTree));
     }
 
     @GetMapping("trees/{treeId}")

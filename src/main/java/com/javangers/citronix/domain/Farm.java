@@ -32,7 +32,4 @@ public class Farm {
     @OneToMany(mappedBy = "farm")
     private List<Field> fields;
 
-    @OneToMany(mappedBy = "farm")
-    private List<Harvest> harvests;
-
 }

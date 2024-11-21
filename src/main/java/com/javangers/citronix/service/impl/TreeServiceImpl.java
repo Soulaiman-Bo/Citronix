@@ -8,11 +8,14 @@ import com.javangers.citronix.service.TreeService;
 import com.javangers.citronix.web.error.ResourceNotFoundException;
 import com.javangers.citronix.web.error.TreeException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,12 +29,22 @@ public class TreeServiceImpl implements TreeService {
         this.fieldService = fieldService;
     }
 
+
     @Override
-    public Tree plantTree(Tree tree) {
-        Field field = fieldService.getField(tree.getField().getId());
-        validatePlantingRules(field, tree);
-        tree.setField(field);
-        return treeRepository.save(tree);
+    public List<Tree> plantTree(LocalDate plantingDate, UUID fieldId,  Integer quantity) {
+        List<Tree> treesList = new ArrayList<>();
+        Field field = fieldService.getField(fieldId);
+
+        for (int i = 0; i < quantity; i++) {
+            Tree newTree = new Tree();
+            newTree.setPlantingDate(plantingDate);
+            newTree.setField(field);
+
+            validatePlantingRules(field, newTree);
+            treesList.add(newTree);
+        }
+
+        return treeRepository.saveAll(treesList);
     }
 
     private void validatePlantingRules(Field field, Tree tree) {

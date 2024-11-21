@@ -12,6 +12,5 @@ import java.util.UUID;
 public interface TreeRepository extends JpaRepository<Tree, UUID> {
     Page<Tree> findAllByFieldId(UUID fieldId, Pageable pageable);
     Page<Tree> findAllByFieldIdAndPlantingDateBetween(UUID fieldId, LocalDate startDate, LocalDate endDate, Pageable pageable);
-
     long countByFieldId(UUID id);
 }
