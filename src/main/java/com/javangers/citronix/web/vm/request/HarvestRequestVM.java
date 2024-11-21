@@ -20,8 +20,8 @@ public class HarvestRequestVM {
     @NotNull(message = "Harvest Date is required")
     private LocalDate harvestDate;
 
-    @NotNull(message = "Fields is required")
-    private UUID field;
+    @NotNull(message = "Item (Field/Farm) is required")
+    private UUID item;
 
 }
 

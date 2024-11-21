@@ -26,9 +26,20 @@ public class HarvestCotroller {
     private final HarvestMapper harvestMapper;
 
     @PostMapping("harvests")
-    public ResponseEntity<HarvestResponseVM> plantTree(@Valid @RequestBody HarvestRequestVM requestVM) {
+    public ResponseEntity<HarvestResponseVM> HarvestField(@Valid @RequestBody HarvestRequestVM requestVM) {
 
-       Harvest harvest = harvestService.createHarvest(requestVM.getHarvestDate(), requestVM.getField());
+       Harvest harvest = harvestService.harvestField(requestVM.getHarvestDate(), requestVM.getItem());
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(harvestMapper.toHarvestResponseVM(harvest));
+
+    }
+
+    @PostMapping("harvests/all")
+    public ResponseEntity<HarvestResponseVM> HarvestFarm(@Valid @RequestBody HarvestRequestVM requestVM) {
+
+        Harvest harvest = harvestService.harvestFarm(requestVM.getHarvestDate(), requestVM.getItem());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
