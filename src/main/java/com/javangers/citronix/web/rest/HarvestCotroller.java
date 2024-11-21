@@ -2,7 +2,7 @@ package com.javangers.citronix.web.rest;
 
 
 import com.javangers.citronix.domain.Harvest;
-import com.javangers.citronix.domain.Tree;
+
 import com.javangers.citronix.service.HarvestService;
 import com.javangers.citronix.web.vm.mapper.HarvestMapper;
 import com.javangers.citronix.web.vm.request.HarvestRequestVM;
