@@ -39,9 +39,8 @@ public class FarmServiceImpl implements FarmService {
     }
 
     @Override
-    public FarmResponseVM getFarm(UUID id) {
-        Farm farm = findFarmById(id);
-        return farmMapper.toResponseVM(farm);
+    public Farm getFarm(UUID id) {
+        return findFarmById(id);
     }
 
 

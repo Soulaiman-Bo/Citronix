@@ -1,6 +1,7 @@
 package com.javangers.citronix.service;
 
 
+import com.javangers.citronix.domain.Farm;
 import com.javangers.citronix.web.params.FarmSearchParams;
 import com.javangers.citronix.web.vm.request.FarmRequestVM;
 import com.javangers.citronix.web.vm.response.FarmResponseVM;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 public interface FarmService {
     FarmResponseVM createFarm(FarmRequestVM farmRequest);
-    FarmResponseVM getFarm(UUID id);
+    Farm getFarm(UUID id);
     FarmResponseVM updateFarm(UUID id, FarmRequestVM farmRequest);
     void deleteFarm(UUID id);
     Page<FarmResponseVM> searchFarms(FarmSearchParams searchParams, Pageable pageable);
