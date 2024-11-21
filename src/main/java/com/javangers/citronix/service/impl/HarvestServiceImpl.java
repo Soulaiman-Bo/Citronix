@@ -9,8 +9,13 @@ import com.javangers.citronix.service.FarmService;
 import com.javangers.citronix.service.FieldService;
 import com.javangers.citronix.service.HarvestService;
 import com.javangers.citronix.web.error.HarvestException;
+import com.javangers.citronix.web.params.HarvestPageRequest;
+import com.javangers.citronix.web.vm.request.HarvestRequestVM;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -41,41 +46,6 @@ public class HarvestServiceImpl implements HarvestService {
         List<HarvestDetail> harvestDetails = generateHarvestDetails(field, harvest, harvestDate, season);
 
         return finalizeHarvest(harvest, harvestDetails);
-
-//        Harvest harvest = new Harvest();
-//        harvest.setHarvestDate(harvestDate);
-//        harvest.setTotalQuantity(0.0);
-//        harvest.setSeason(season);
-
-//        harvest = harvestRepository.save(harvest);
-
-//        List<Tree> trees = field.getTrees();
-//        List<HarvestDetail> harvests = new ArrayList<>();
-//        double totalQuantity = 0.0;
-
-//        Harvest finalHarvest = harvest; // why
-//        for (Tree tree : trees) {
-//
-//            validateTreeNotHarvestedThisSeason(tree, season);
-//
-//            HarvestDetail harvestDetail = new HarvestDetail();
-//            harvestDetail.setHarvest(finalHarvest);
-//            harvestDetail.setTree(tree);
-//            harvestDetail.setField(field);
-//
-//            double treeProductivity = calculateTreeProductivityByAge(tree, harvestDate);
-//            harvestDetail.setQuantity(treeProductivity);
-//
-//            harvests.add(harvestDetail);
-//            totalQuantity += treeProductivity;
-//        }
-//
-//        harvestDetailRepository.saveAll(harvests);
-//
-//        harvest.setHarvestDetails(harvests);
-//        harvest.setTotalQuantity(totalQuantity);
-//
-//        return harvestRepository.save(harvest);
     }
 
     @Override
@@ -95,6 +65,35 @@ public class HarvestServiceImpl implements HarvestService {
 
         }
         return finalizeHarvest(harvest, harvestDetails);
+    }
+
+    @Override
+    public Harvest getHarvestById(UUID harvestId) {
+        return harvestRepository.findById(harvestId)
+                .orElseThrow(() -> new EntityNotFoundException("Harvest not found with ID: " + harvestId));
+    }
+
+    @Override
+    public Page<Harvest> getAllHarvests(Season season, Integer year, Pageable pageable) {
+        if (season == null && year == null) {
+            return harvestRepository.findAll(pageable);
+        }
+
+        return harvestRepository.findAllBySeasonAndYear(season, year, pageable);
+    }
+    @Override
+    public Harvest updateHarvest(UUID harvestId, HarvestRequestVM request) {
+        Harvest existingHarvest = getHarvestById(harvestId);
+        existingHarvest.setHarvestDate(request.getHarvestDate());
+        existingHarvest.setSeason(determineSeason(request.getHarvestDate()));
+
+        return harvestRepository.save(existingHarvest);
+    }
+
+    @Override
+    public void deleteHarvest(UUID harvestId) {
+        Harvest harvest = getHarvestById(harvestId);
+        harvestRepository.delete(harvest);
     }
 
 
