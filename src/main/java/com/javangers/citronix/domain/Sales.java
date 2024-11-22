@@ -1,11 +1,19 @@
 package com.javangers.citronix.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "sales")
 public class Sales {
 
@@ -18,6 +26,7 @@ public class Sales {
     private Double unitPrice;
     private String client;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "harvest_id")
     private Harvest harvest;
 }
