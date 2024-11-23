@@ -4,11 +4,13 @@ import com.javangers.citronix.domain.Field;
 import com.javangers.citronix.domain.Tree;
 import com.javangers.citronix.repository.TreeRepository;
 import com.javangers.citronix.service.FieldService;
+import com.javangers.citronix.service.HarvestDetailsService;
 import com.javangers.citronix.service.TreeService;
 import com.javangers.citronix.web.error.ResourceNotFoundException;
 import com.javangers.citronix.web.error.TreeException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,16 +24,22 @@ import java.util.UUID;
 @Transactional
 public class TreeServiceImpl implements TreeService {
     private final TreeRepository treeRepository;
-    private final FieldService fieldService;
+    private final HarvestDetailsService harvestDetailsService;
 
-    public TreeServiceImpl(TreeRepository treeRepository, FieldService fieldService) {
+    @Autowired
+    @Lazy
+    private FieldService fieldService;
+
+    // Constructor for required dependencies
+    public TreeServiceImpl(TreeRepository treeRepository,
+                           HarvestDetailsService harvestDetailsService) {
         this.treeRepository = treeRepository;
-        this.fieldService = fieldService;
+        this.harvestDetailsService = harvestDetailsService;
     }
 
 
     @Override
-    public List<Tree> plantTree(LocalDate plantingDate, UUID fieldId,  Integer quantity) {
+    public List<Tree> plantTree(LocalDate plantingDate, UUID fieldId, Integer quantity) {
         List<Tree> treesList = new ArrayList<>();
         Field field = fieldService.getField(fieldId);
 
@@ -77,8 +85,11 @@ public class TreeServiceImpl implements TreeService {
     }
 
     @Override
-    public void removeTree(UUID treeId) {
+    public void deleteTree(UUID treeId) {
         Tree tree = getTree(treeId);
+
+        harvestDetailsService.deleteAllByTreeId(treeId);
+
         treeRepository.delete(tree);
     }
 

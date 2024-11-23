@@ -1,8 +1,10 @@
 package com.javangers.citronix.service.impl;
 
 import com.javangers.citronix.domain.Farm;
+import com.javangers.citronix.domain.Field;
 import com.javangers.citronix.repository.FarmRepository;
 import com.javangers.citronix.service.FarmService;
+import com.javangers.citronix.service.FieldService;
 import com.javangers.citronix.web.error.BusinessRuleViolationException;
 import com.javangers.citronix.web.error.FarmException;
 import com.javangers.citronix.web.error.ResourceNotFoundException;
@@ -10,7 +12,11 @@ import com.javangers.citronix.web.params.FarmSearchParams;
 import com.javangers.citronix.web.vm.mapper.FarmMapper;
 import com.javangers.citronix.web.vm.request.FarmRequestVM;
 import com.javangers.citronix.web.vm.response.FarmResponseVM;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +28,20 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class FarmServiceImpl implements FarmService {
     private final FarmRepository farmRepository;
     private final FarmMapper farmMapper;
+
+    @Autowired
+    @Lazy
+    private FieldService fieldService;
+
+    // Constructor for required dependencies
+    public FarmServiceImpl(FarmRepository farmRepository, FarmMapper farmMapper) {
+        this.farmRepository = farmRepository;
+        this.farmMapper = farmMapper;
+    }
 
 
     @Override
@@ -42,7 +58,6 @@ public class FarmServiceImpl implements FarmService {
     public Farm getFarm(UUID id) {
         return findFarmById(id);
     }
-
 
     @Override
     public FarmResponseVM updateFarm(UUID id, FarmRequestVM farmRequest) {
@@ -61,13 +76,13 @@ public class FarmServiceImpl implements FarmService {
 
     @Override
     public void deleteFarm(UUID id) {
-        Farm farm = findFarmById(id);
-        if (!farm.getFields().isEmpty()) {
-            throw new BusinessRuleViolationException(
-                    "Cannot delete farm with existing fields",
-                    "FARM_HAS_FIELDS"
-            );
+        Farm farm = farmRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Farm not found with id: " + id));
+
+        for (Field field : farm.getFields()) {
+            fieldService.deleteField(field.getId());
         }
+
         farmRepository.delete(farm);
     }
 

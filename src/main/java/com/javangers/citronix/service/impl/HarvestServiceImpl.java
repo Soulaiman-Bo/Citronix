@@ -2,18 +2,20 @@ package com.javangers.citronix.service.impl;
 
 import com.javangers.citronix.domain.*;
 import com.javangers.citronix.domain.enumeration.Season;
-import com.javangers.citronix.repository.FarmRepository;
 import com.javangers.citronix.repository.HarvestDetailRepository;
 import com.javangers.citronix.repository.HarvestRepository;
 import com.javangers.citronix.service.FarmService;
 import com.javangers.citronix.service.FieldService;
 import com.javangers.citronix.service.HarvestService;
+import com.javangers.citronix.service.SalesService;
+import com.javangers.citronix.web.error.BusinessRuleViolationException;
 import com.javangers.citronix.web.error.HarvestException;
-import com.javangers.citronix.web.params.HarvestPageRequest;
 import com.javangers.citronix.web.vm.request.HarvestRequestVM;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,22 +24,40 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
-public class HarvestServiceImpl implements HarvestService {
 
+public class HarvestServiceImpl implements HarvestService {
     private final FieldService fieldService;
     private final FarmService farmService;
     private final HarvestRepository harvestRepository;
     private final HarvestDetailRepository harvestDetailRepository;
 
+    @Autowired
+    @Lazy
+    private SalesService salesService;
+
+    // Constructor for required dependencies
+    public HarvestServiceImpl(FieldService fieldService,
+                              FarmService farmService,
+                              HarvestRepository harvestRepository,
+                              HarvestDetailRepository harvestDetailRepository) {
+        this.fieldService = fieldService;
+        this.farmService = farmService;
+        this.harvestRepository = harvestRepository;
+        this.harvestDetailRepository = harvestDetailRepository;
+    }
+
     @Override
     public Harvest harvestField(LocalDate harvestDate, UUID fieldId) {
         Field field = fieldService.getField(fieldId);
+
+        if(harvestDate.getYear() == LocalDate.now().getYear()) {
+            throw new BusinessRuleViolationException("Harvest Date should be current Year", "INVALID_HARVEST_YEAR");
+        }
+
         Season season = determineSeason(harvestDate);
 
         validateUniqueSeasonHarvest(field, season);
@@ -93,6 +113,11 @@ public class HarvestServiceImpl implements HarvestService {
     @Override
     public void deleteHarvest(UUID harvestId) {
         Harvest harvest = getHarvestById(harvestId);
+
+        for (Sales sale : harvest.getSales()) {
+            salesService.deleteSale(sale.getId());
+        }
+
         harvestRepository.delete(harvest);
     }
 
@@ -127,7 +152,6 @@ public class HarvestServiceImpl implements HarvestService {
         HarvestDetail harvestDetail = new HarvestDetail();
         harvestDetail.setHarvest(harvest);
         harvestDetail.setTree(tree);
-        harvestDetail.setField(field);
         harvestDetail.setQuantity(quantity);
         return harvestDetail;
     }

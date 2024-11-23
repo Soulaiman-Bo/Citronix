@@ -2,29 +2,33 @@ package com.javangers.citronix.service.impl;
 
 import com.javangers.citronix.domain.Harvest;
 import com.javangers.citronix.domain.Sales;
-import com.javangers.citronix.repository.HarvestRepository;
 import com.javangers.citronix.repository.SalesRepository;
 import com.javangers.citronix.service.HarvestService;
 import com.javangers.citronix.service.SalesService;
-import com.javangers.citronix.web.error.BusinessRuleViolationException;
 import com.javangers.citronix.web.error.ResourceNotFoundException;
 import com.javangers.citronix.web.error.SaleException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class SalesServiceImpl implements SalesService {
     private final SalesRepository salesRepository;
-//    private final HarvestRepository harvestRepository;
-    private final HarvestService harvestService;
+
+    @Autowired
+    @Lazy
+    private HarvestService harvestService;
+
+    public SalesServiceImpl(SalesRepository salesRepository) {
+        this.salesRepository = salesRepository;
+    }
+
 
     @Override
     public Sales createSale(Sales sale) {
@@ -43,8 +47,6 @@ public class SalesServiceImpl implements SalesService {
 
         // If harvest is different, validate old and new harvest quantities
         if (!existingSale.getHarvest().getId().equals(updatedSale.getHarvest().getId())) {
-            // Release quantity from old harvest
-            validateHarvestQuantityAfterRelease(existingSale.getHarvest(), existingSale.getQuantity());
             // Validate quantity for new harvest
             validateSale(harvest, updatedSale, null);
         } else {
@@ -65,7 +67,6 @@ public class SalesServiceImpl implements SalesService {
     @Override
     public void deleteSale(UUID saleId) {
         Sales sale = getSale(saleId);
-        validateHarvestQuantityAfterRelease(sale.getHarvest(), sale.getQuantity());
         salesRepository.delete(sale);
     }
 
@@ -99,18 +100,4 @@ public class SalesServiceImpl implements SalesService {
         }
     }
 
-    private void validateHarvestQuantityAfterRelease(Harvest harvest, Double releasedQuantity) {
-        double totalSoldQuantity = harvest.getSales().stream()
-                .mapToDouble(Sales::getQuantity)
-                .sum();
-
-        double remainingQuantity = totalSoldQuantity - releasedQuantity;
-
-        if (remainingQuantity < 0) {
-            throw new BusinessRuleViolationException(
-                    "Invalid state: Remaining quantity would be negative",
-                    "INVALID_QUANTITY_STATE"
-            );
-        }
-    }
 }
