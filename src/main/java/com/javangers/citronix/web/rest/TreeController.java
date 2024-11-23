@@ -6,7 +6,6 @@ import com.javangers.citronix.web.vm.mapper.TreeMapper;
 import com.javangers.citronix.web.vm.request.TreeRequestVM;
 import com.javangers.citronix.web.vm.response.TreeResponseVM;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,7 +58,7 @@ public class TreeController {
     @DeleteMapping("trees/{treeId}")
     public ResponseEntity<Void> removeTree(
             @PathVariable UUID treeId) {
-        treeService.removeTree(treeId);
+        treeService.deleteTree(treeId);
         return ResponseEntity.noContent().build();
     }
 
