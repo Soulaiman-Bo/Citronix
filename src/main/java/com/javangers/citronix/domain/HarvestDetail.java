@@ -26,9 +26,5 @@ public class HarvestDetail {
     private Harvest harvest;
 
     @ManyToOne
-    private Field field;
-
-    @ManyToOne
     private Tree tree;
-
 }

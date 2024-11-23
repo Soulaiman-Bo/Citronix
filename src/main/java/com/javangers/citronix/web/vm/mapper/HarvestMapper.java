@@ -16,13 +16,9 @@ public interface HarvestMapper {
 
     HarvestResponseVM toHarvestResponseVM(Harvest harvest);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "harvestDetails", ignore = true)
-    @Mapping(target = "sales", ignore = true)
-    Harvest toEntity(HarvestRequestVM request);
-
     HarvestResponse toResponse(Harvest harvest);
 
+    @Mapping(source = "tree.id", target = "treeId")
     HarvestDetailResponse toDetailResponse(HarvestDetail harvestDetail);
 
     List<HarvestResponse> toResponseList(List<Harvest> harvests);
