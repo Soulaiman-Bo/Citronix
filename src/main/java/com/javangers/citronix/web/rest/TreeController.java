@@ -4,6 +4,7 @@ import com.javangers.citronix.domain.Tree;
 import com.javangers.citronix.service.TreeService;
 import com.javangers.citronix.web.vm.mapper.TreeMapper;
 import com.javangers.citronix.web.vm.request.TreeRequestVM;
+import com.javangers.citronix.web.vm.request.TreeUpdateRequestVM;
 import com.javangers.citronix.web.vm.response.TreeResponseVM;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -49,7 +50,7 @@ public class TreeController {
     @PutMapping("trees/{treeId}")
     public ResponseEntity<TreeResponseVM> updateTree(
             @PathVariable UUID treeId,
-            @Valid @RequestBody TreeRequestVM requestVM) {
+            @Valid @RequestBody TreeUpdateRequestVM requestVM) {
         Tree tree = treeMapper.toEntity(requestVM);
         Tree updatedTree = treeService.updateTree(treeId, tree);
         return ResponseEntity.ok(treeMapper.toResponseVM(updatedTree));
@@ -73,3 +74,4 @@ public class TreeController {
         return ResponseEntity.ok(treeVMs);
     }
 }
+

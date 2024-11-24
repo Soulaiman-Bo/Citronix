@@ -62,7 +62,7 @@ public class HarvestCotroller {
         return ResponseEntity.ok(harvestMapper.toResponse(harvest));
     }
 
-    @GetMapping
+    @GetMapping("harvests")
     public ResponseEntity<Page<HarvestResponse>> listHarvests(
             @RequestParam(required = false) Season season,
             @RequestParam(required = false) Integer year,
@@ -102,7 +102,6 @@ public class HarvestCotroller {
         harvestService.deleteHarvest(harvestId);
         return ResponseEntity.noContent().build();
     }
-
 
 
 }

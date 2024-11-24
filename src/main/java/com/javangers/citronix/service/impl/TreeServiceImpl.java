@@ -43,26 +43,36 @@ public class TreeServiceImpl implements TreeService {
         List<Tree> treesList = new ArrayList<>();
         Field field = fieldService.getField(fieldId);
 
+        double maxTrees = field.getArea() * 100;
+
+        if (maxTrees < quantity) {
+            throw new TreeException.TreeSpacingViolationException();
+        }
+
         for (int i = 0; i < quantity; i++) {
             Tree newTree = new Tree();
             newTree.setPlantingDate(plantingDate);
             newTree.setField(field);
 
-            validatePlantingRules(field, newTree);
+            validatePlatingSeason(newTree);
+            validateFieldDensity(field);
+
             treesList.add(newTree);
         }
 
         return treeRepository.saveAll(treesList);
     }
 
-    private void validatePlantingRules(Field field, Tree tree) {
-        // Validate planting season
+
+    private void validatePlatingSeason(Tree tree){
         int plantingMonth = tree.getPlantingDate().getMonthValue();
         if (plantingMonth < 3 || plantingMonth > 5) {
             throw new TreeException.InvalidPlantingSeasonException();
         }
+    }
 
-        // Validate tree density (100 trees per hectare)
+
+    private void validateFieldDensity(Field field) {
         long existingTrees = treeRepository.countByFieldId(field.getId());
         double maxTrees = field.getArea() * 100;
         if (existingTrees + 1 > maxTrees) {
@@ -78,9 +88,16 @@ public class TreeServiceImpl implements TreeService {
 
     @Override
     public Tree updateTree(UUID treeId, Tree updatedTree) {
+
+        validatePlatingSeason(updatedTree);
+
         Tree existingTree = getTree(treeId);
-        validatePlantingRules(existingTree.getField(), updatedTree);
+
+        // validateFieldDensity(updatedTree.getField());
+
         existingTree.setPlantingDate(updatedTree.getPlantingDate());
+        existingTree.setField(updatedTree.getField());
+
         return treeRepository.save(existingTree);
     }
 
