@@ -21,6 +21,7 @@ public class Farm {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "name", columnDefinition = "varchar(255)")
     String name;
 
     String location;

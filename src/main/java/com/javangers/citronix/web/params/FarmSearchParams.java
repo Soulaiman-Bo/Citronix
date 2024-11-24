@@ -16,5 +16,4 @@ public class FarmSearchParams {
     private String location;
     private Double minArea;
     private Double maxArea;
-    private LocalDate createdAfter;
 }

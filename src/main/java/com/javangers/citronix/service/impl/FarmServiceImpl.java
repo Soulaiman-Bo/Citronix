@@ -14,18 +14,14 @@ import com.javangers.citronix.web.vm.request.FarmRequestVM;
 import com.javangers.citronix.web.vm.response.FarmResponseVM;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -88,25 +84,13 @@ public class FarmServiceImpl implements FarmService {
 
     @Override
     public Page<FarmResponseVM> searchFarms(FarmSearchParams searchParams, Pageable pageable) {
-        List<Farm> farms = farmRepository.searchFarms(
+        return farmRepository.searchFarms(
                 searchParams.getName(),
                 searchParams.getLocation(),
                 searchParams.getMinArea(),
                 searchParams.getMaxArea(),
-                searchParams.getCreatedAfter()
-        );
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), farms.size());
-
-        List<Farm> pageContent = farms.subList(start, end);
-        return new PageImpl<>(
-                pageContent.stream()
-                        .map(farmMapper::toResponseVM)
-                        .collect(Collectors.toList()),
-                pageable,
-                farms.size()
-        );
+                pageable
+        ).map(farmMapper::toResponseVM);
     }
 
     private Farm findFarmById(UUID id) {
