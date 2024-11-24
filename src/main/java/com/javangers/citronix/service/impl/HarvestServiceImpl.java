@@ -13,7 +13,6 @@ import com.javangers.citronix.web.error.HarvestException;
 import com.javangers.citronix.web.vm.request.HarvestRequestVM;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -28,16 +27,17 @@ import java.util.UUID;
 
 @Service
 @Transactional
-
 public class HarvestServiceImpl implements HarvestService {
     private final FieldService fieldService;
     private final FarmService farmService;
     private final HarvestRepository harvestRepository;
     private final HarvestDetailRepository harvestDetailRepository;
+    private SalesService salesService;
 
     @Autowired
-    @Lazy
-    private SalesService salesService;
+    public void setSalesService(SalesService salesService) {
+        this.salesService = salesService;
+    }
 
     // Constructor for required dependencies
     public HarvestServiceImpl(FieldService fieldService,
@@ -54,7 +54,7 @@ public class HarvestServiceImpl implements HarvestService {
     public Harvest harvestField(LocalDate harvestDate, UUID fieldId) {
         Field field = fieldService.getField(fieldId);
 
-        if(harvestDate.getYear() == LocalDate.now().getYear()) {
+        if (harvestDate.getYear() != LocalDate.now().getYear()) {
             throw new BusinessRuleViolationException("Harvest Date should be current Year", "INVALID_HARVEST_YEAR");
         }
 
@@ -70,13 +70,12 @@ public class HarvestServiceImpl implements HarvestService {
 
     @Override
     public Harvest harvestFarm(LocalDate harvestDate, UUID farmId) {
-        Farm farm =  farmService.getFarm(farmId);
+        Farm farm = farmService.getFarm(farmId);
         List<Field> fields = farm.getFields();
 
         Season season = determineSeason(harvestDate);
         Harvest harvest = createInitialHarvest(harvestDate, season);
         List<HarvestDetail> harvestDetails = new ArrayList<>();
-
 
 
         for (Field field : fields) {
@@ -101,6 +100,7 @@ public class HarvestServiceImpl implements HarvestService {
 
         return harvestRepository.findAllBySeasonAndYear(season, year, pageable);
     }
+
     @Override
     public Harvest updateHarvest(UUID harvestId, HarvestRequestVM request) {
         Harvest existingHarvest = getHarvestById(harvestId);
@@ -120,7 +120,6 @@ public class HarvestServiceImpl implements HarvestService {
 
         harvestRepository.delete(harvest);
     }
-
 
     private Harvest createInitialHarvest(LocalDate harvestDate, Season season) {
         Harvest harvest = new Harvest();
