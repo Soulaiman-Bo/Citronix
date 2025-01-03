@@ -2,26 +2,43 @@ package com.javangers.citronix.service.impl;
 
 import com.javangers.citronix.domain.Farm;
 import com.javangers.citronix.domain.Field;
+import com.javangers.citronix.domain.Tree;
 import com.javangers.citronix.repository.FarmRepository;
 import com.javangers.citronix.repository.FieldRepository;
 import com.javangers.citronix.service.FieldService;
+import com.javangers.citronix.service.HarvestDetailsService;
+import com.javangers.citronix.service.TreeService;
 import com.javangers.citronix.web.error.FarmException;
 import com.javangers.citronix.web.error.FieldException;
 import com.javangers.citronix.web.error.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class FieldServiceImpl implements FieldService {
     private final FieldRepository fieldRepository;
     private final FarmRepository farmRepository;
 
+    @Autowired
+    @Lazy
+    private TreeService treeService;
+
+    // Constructor for required dependencies
+    public FieldServiceImpl(FieldRepository fieldRepository,
+                            FarmRepository farmRepository) {
+        this.fieldRepository = fieldRepository;
+        this.farmRepository = farmRepository;
+    }
 
     @Override
     public Field createField(Field field) {
@@ -46,16 +63,16 @@ public class FieldServiceImpl implements FieldService {
         return fieldRepository.save(existingField);
     }
 
+
     @Override
     public void deleteField(UUID id) {
-//        Field field = getField(id);
-//        if (fieldRepository.existsByIdAndTreesIsNotEmpty(id)) {
-//            throw new BusinessRuleViolationException(
-//                    "Cannot delete field with existing trees",
-//                    "FIELD_HAS_TREES"
-//            );
-//        }
-//        fieldRepository.delete(field);
+        Field field = getField(id);
+
+        for (Tree tree : field.getTrees()) {
+            treeService.deleteTree(tree.getId());
+        }
+
+        fieldRepository.delete(field);
     }
 
     @Override

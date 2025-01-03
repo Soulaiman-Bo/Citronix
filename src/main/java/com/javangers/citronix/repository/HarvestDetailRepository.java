@@ -14,7 +14,6 @@ import java.util.UUID;
 @Repository
 public interface HarvestDetailRepository extends JpaRepository<HarvestDetail, UUID> {
     Optional<List<HarvestDetail>> findByTree(Tree harvest);
-
     boolean existsByTreeIdAndHarvestSeason(UUID treeId, Season season);
-
+    void deleteAllByTreeId(UUID treeId);
 }

@@ -13,6 +13,6 @@ public interface TreeService {
     List<Tree> plantTree(LocalDate plantingDate, UUID fieldId, Integer quantity);
     Tree getTree(UUID treeId);
     Tree updateTree(UUID treeId, Tree tree);
-    void removeTree(UUID treeId);
+    void deleteTree(UUID treeId);
     Page<Tree> listFieldTrees(UUID fieldId, Integer age, Pageable pageable);
 }
